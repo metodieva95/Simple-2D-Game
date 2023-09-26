@@ -11,11 +11,11 @@ import java.util.Objects;
 
 public class Player extends Entity{
 
-    GamePanel gamePanel;
+    GamePanel gp;
     KeyHandler keyH;
 
-    public Player(GamePanel gamePanel, KeyHandler keyH) {
-        this.gamePanel = gamePanel;
+    public Player(GamePanel gp, KeyHandler keyH) {
+        this.gp = gp;
         this.keyH = keyH;
 
         setDefaultValues();
@@ -121,7 +121,7 @@ public class Player extends Entity{
                 break;
         }
 
-        g2.drawImage(image, x, y, gamePanel.tileSize, gamePanel.tileSize, null);
+        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
 
     }
 
