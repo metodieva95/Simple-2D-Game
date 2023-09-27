@@ -12,17 +12,17 @@ import java.util.Objects;
 
 public class TileManager {
 
-    GamePanel gp;
-    Tile[] tiles;
-    int mapTileNum[][];
+    private GamePanel gp;
+    public Tile[] tiles;
+    public  int[][] mapTileNum;
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
         tiles = new Tile[10];
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRol];
 
         getTimeImage();
-        loadMap("/maps/map01.txt");
+        loadMap("/maps/world01.txt");
     }
 
     public void getTimeImage()  {
@@ -35,10 +35,25 @@ public class TileManager {
             tiles[1] = new Tile();
             tiles[1].image = ImageIO.read(Objects.requireNonNull
                     (getClass().getClassLoader().getResourceAsStream("tiles/wall.png")));
+            tiles[1].collision = true;
 
             tiles[2] = new Tile();
             tiles[2].image = ImageIO.read(Objects.requireNonNull
                     (getClass().getClassLoader().getResourceAsStream("tiles/water.png")));
+            tiles[2].collision = true;
+
+            tiles[3] = new Tile();
+            tiles[3].image = ImageIO.read(Objects.requireNonNull
+                    (getClass().getClassLoader().getResourceAsStream("tiles/earth.png")));
+
+            tiles[4] = new Tile();
+            tiles[4].image = ImageIO.read(Objects.requireNonNull
+                    (getClass().getClassLoader().getResourceAsStream("tiles/tree.png")));
+            tiles[4].collision = true;
+
+            tiles[5] = new Tile();
+            tiles[5].image = ImageIO.read(Objects.requireNonNull
+                    (getClass().getClassLoader().getResourceAsStream("tiles/sand.png")));
 
         } catch (IOException e) {
             e.getStackTrace();
@@ -57,11 +72,11 @@ public class TileManager {
             int col = 0;
             int row = 0;
 
-            while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
+            while (col < gp.maxWorldCol && row < gp.maxWorldRol) {
 
                 String line = reader.readLine();
 
-                while (col < gp.maxScreenCol) {
+                while (col < gp.maxWorldCol) {
 
                     String[] numbers = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
@@ -70,7 +85,7 @@ public class TileManager {
                     col++;
                 }
 
-                if (col == gp.maxScreenCol) {
+                if (col == gp.maxWorldCol) {
                     col = 0;
                     row++;
                 }
@@ -86,28 +101,40 @@ public class TileManager {
 
     public void draw (Graphics2D g2) {
 
-        int col = 0;
-        int row = 0;
-        int x = 0;
-        int y = 0;
+        int worldCol = 0;
+        int worldRow = 0;
 
-        while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
 
-            int tileNum = mapTileNum[col][row];
+        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRol) {
 
-            g2.drawImage(tiles[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
-            col++;
-            x += gp.tileSize;
+            int tileNum = mapTileNum[worldCol][worldRow];
 
-            if (col == gp.maxScreenCol) {
-                col = 0;
-                x = 0;
-                row++;
-                y += gp.tileSize;
+            int worldX = worldCol * gp.tileSize;
+            int worldY = worldRow * gp.tileSize;
+            int screenX = worldX - gp.player.worldX + gp.player.screenX;
+            int screenY = worldY - gp.player.worldY + gp.player.screenY;
+
+            // BETTER RENDERING
+            if (isPlayerInBoundary(worldX, worldY)) {
+                g2.drawImage(tiles[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+            }
+
+            worldCol++;
+
+            if (worldCol == gp.maxWorldCol) {
+                worldCol = 0;
+                worldRow++;
             }
 
         }
 
+    }
+
+    private boolean isPlayerInBoundary(int worldX, int worldY) {
+        return worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
+                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
+                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
+                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY;
     }
 
 }
